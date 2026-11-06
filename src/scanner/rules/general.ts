@@ -446,6 +446,12 @@ const KNOWN_VULN_DEPS: {
    *  as affected. An older version still fires (it is below the floor), but as
    *  a warning, because the critical rating does not reach it. */
   criticalFrom?: [number, number, number];
+  /** With severity "critical" and fixedByMajor: the per-major floor of the
+   *  newest CRITICAL advisory, when a later lower-rated release has since raised
+   *  the floor above it. A version at or above this point (but still below the
+   *  current floor) is only exposed to the lower-rated advisories, so it fires
+   *  as a warning, not a critical. Majors with no entry keep the entry's rating. */
+  criticalBelowByMajor?: Record<number, [number, number, number]>;
 }[] = [
   {
     name: "next",
@@ -485,7 +491,18 @@ const KNOWN_VULN_DEPS: {
     // 15 floor moves 15.5.27 -> 15.5.28. This time the repo GHSA ranges are
     // concrete (no placeholders) and match the release post. 16.4.2 (2026-10-15)
     // is a bugfix-only follow-up; the patched floor is 16.4.1.
-    fixedByMajor: { 15: [15, 5, 28], 16: [16, 4, 1] },
+    //
+    // 2026-11-03 scheduled November release: seven advisories (the release post
+    // rates GHSA-mfr8-8qww-v76h High, its GHSA record Medium; the rest Medium), patched in
+    // 16.4.5 / 15.5.29 (GHSA-f3mh-rxg3-f5g2 HttpOnly cookie exposure on Edge
+    // routes, GHSA-7qx7-33qx-rqx2 SVG rejection bypass in image optimization and
+    // GHSA-pc58-hwjq-p385 cross-client response injection reach 15.x as well;
+    // GHSA-rhh4-g77r-r9qj, -vvgp-ww4w-46vf, -vc7v-qv4w-wrv8, -mfr8-8qww-v76h are
+    // 16.x `use cache` / Cache Components only). Both floors move, but nothing in
+    // this release is rated critical, so 16.4.1-16.4.4 and 15.5.28 fire as WARNINGS
+    // (criticalBelowByMajor) and only versions below the Oct 14 floor stay critical.
+    fixedByMajor: { 15: [15, 5, 29], 16: [16, 4, 5] },
+    criticalBelowByMajor: { 15: [15, 5, 28], 16: [16, 4, 1] },
     // CRITICAL — verified 2026-10-22: both floors are set by GHSA-2464-fhr4-w9xw,
     // which vercel/next.js publishes as "Critical" (CVSS 4.0 9.5) and the
     // 2026-10-14 release post labels "Critical Severity"; the 16 floor also by
@@ -495,7 +512,7 @@ const KNOWN_VULN_DEPS: {
     severity: "critical",
     criticalFrom: [10, 0, 0],
     advisory:
-      "October 2026 out-of-band security release (2026-10-14), the fixes Vercel postponed from September: two CRITICAL unauthenticated RCEs — in the Image Optimization API when SVG files are used, via a memory bug in an upstream library (sharp/librsvg) on glibc-based Linux (CVE-2026-96889 / GHSA-2464-fhr4-w9xw; affects >=10.0.0 <=15.5.27 and 16.x <=16.4.0; workaround: make sure Next.js uses sharp 0.35.5+), and in `use cache` functions returning multiple typed arrays with Cache Components (GHSA-673q-mjm6-r5xr; 16.x <=16.4.0; no workaround) — plus a HIGH denial of service in App Router apps with at least one Server Action (GHSA-p3m5-59mp-jv5r; >=13.0.0 <=15.5.27 and 16.x <=16.4.0). There is no patched 16.3.x: patch to 16.4.1+ (16.x) or 15.5.28+ (15.x); 14.x and older have no fix branch. This is on top of the 2026-09-30 September release (HIGH Image Optimization SSRF CVE-2026-94483 plus medium/low issues CVE-2026-94484, -94485, -94486, -94543, -94544), the 2026-09-22 CRITICAL next/og RCE (CVE-2026-94545), the August 2026 critical unauthenticated RCEs (GHSA-2xp9-vwfh-vxw4, CVE-2026-75604), the July 2026 set (CVE-2026-64641 through CVE-2026-64649) and the earlier CVE-2025-29927 middleware bypass.",
+      "November 2026 security release (2026-11-03): seven advisories (one High, six Medium; none critical) patched in 16.4.5 (16.x) and 15.5.29 (15.x) — HttpOnly cookie exposure through an internal response header on Edge runtime routes (GHSA-f3mh-rxg3-f5g2), an SVG rejection bypass in image optimization (GHSA-7qx7-33qx-rqx2), cross-client response injection in self-hosted apps that forward fetched responses (GHSA-pc58-hwjq-p385), and four cache leaks or poisoning issues in `use cache` / Cache Components (16.x only: GHSA-rhh4-g77r-r9qj, GHSA-vvgp-ww4w-46vf, GHSA-vc7v-qv4w-wrv8, GHSA-mfr8-8qww-v76h). Versions below 16.4.1 / 15.5.28 are also exposed to the critical October fixes: the October 2026 out-of-band security release (2026-10-14), the fixes Vercel postponed from September: two CRITICAL unauthenticated RCEs — in the Image Optimization API when SVG files are used, via a memory bug in an upstream library (sharp/librsvg) on glibc-based Linux (CVE-2026-96889 / GHSA-2464-fhr4-w9xw; affects >=10.0.0 <=15.5.27 and 16.x <=16.4.0; workaround: make sure Next.js uses sharp 0.35.5+), and in `use cache` functions returning multiple typed arrays with Cache Components (GHSA-673q-mjm6-r5xr; 16.x <=16.4.0; no workaround) — plus a HIGH denial of service in App Router apps with at least one Server Action (GHSA-p3m5-59mp-jv5r; >=13.0.0 <=15.5.27 and 16.x <=16.4.0). There is no patched 16.3.x, and 14.x and older have no fix branch at all. This is on top of the 2026-09-30 September release (HIGH Image Optimization SSRF CVE-2026-94483 plus medium/low issues CVE-2026-94484, -94485, -94486, -94543, -94544), the 2026-09-22 CRITICAL next/og RCE (CVE-2026-94545), the August 2026 critical unauthenticated RCEs (GHSA-2xp9-vwfh-vxw4, CVE-2026-75604), the July 2026 set (CVE-2026-64641 through CVE-2026-64649) and the earlier CVE-2025-29927 middleware bypass.",
   },
   {
     // The upstream package behind CVE-2026-96889. Next.js 16.4.1+ / 15.5.28+
@@ -680,10 +697,16 @@ function depFixTarget(
  *  inside the critical advisory's own affected range (`criticalFrom`). */
 function depSeverity(
   ver: [number, number, number],
-  adv: { severity?: "critical" | "warning"; criticalFrom?: [number, number, number] }
+  adv: {
+    severity?: "critical" | "warning";
+    criticalFrom?: [number, number, number];
+    criticalBelowByMajor?: Record<number, [number, number, number]>;
+  }
 ): Severity {
   if (adv.severity !== "critical") return "warning";
   if (adv.criticalFrom && lt(ver, adv.criticalFrom)) return "warning";
+  const critFloor = adv.criticalBelowByMajor?.[ver[0]];
+  if (critFloor && !lt(ver, critFloor)) return "warning";
   return "critical";
 }
 
