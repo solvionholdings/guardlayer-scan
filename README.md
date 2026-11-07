@@ -1,8 +1,8 @@
 # GuardLayer Scan — free security scanner for Next.js + Supabase (GitHub Action)
 
-**GuardLayer Scan is a free, open-source (MIT) GitHub Action that statically scans your Next.js + Supabase repo for exposed secrets, missing Row Level Security, unguarded Server Actions, unverified webhooks and known-vulnerable dependencies.** It marks findings as annotations on the exact file and line, lists them in a summary on the workflow run, and can fail the build on critical issues. No signup, no account, no API key, and your code never leaves the runner.
+**GuardLayer Scan is a free GitHub Action that statically scans your Next.js + Supabase repo for exposed secrets, missing Row Level Security, unguarded Server Actions, unverified webhooks and known-vulnerable dependencies.** It marks findings as annotations on the exact file and line, lists them in a summary on the workflow run, and can fail the build on critical issues. No signup, no account, no API key, and your code never leaves the runner.
 
-It runs the same static engine as [guardlayer.io](https://www.guardlayer.io). Want to try the rules before wiring up CI? Paste a migration into the [free in-browser checker](https://www.guardlayer.io/supabase-security-checker) — it runs client-side, nothing is uploaded.
+It runs the same static engine as [guardlayer.io](https://www.guardlayer.io). Want to try the rules before wiring up CI? Paste a migration into the [free Supabase security checker](https://www.guardlayer.io/supabase-security-checker) — your SQL is never stored.
 
 ## Quick start
 
@@ -82,4 +82,6 @@ The badge is a static image, the same for every repo. It shows no score and no f
 
 ## License
 
-MIT © GuardLayer / Solvion Solutions
+Free to use in any repository, including private and commercial ones. The code itself is not open source: see [LICENSE](LICENSE). Versions published before November 7, 2026 remain under the MIT License.
+
+© 2026 Solvion Solutions (GuardLayer)
